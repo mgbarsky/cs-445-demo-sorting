@@ -9,70 +9,60 @@ public class SimpleSorting {
 	
 	/** Sorts the first n objects in an array into ascending order.
     @param a  an array of integers (for simplicity of the demo)
-    Can be easily rteplaced with generics and comparable
+    Can be easily replaced with comparable generics types
     */
-
-	public static void selectionSort(int[] a) {
-		int n = a.length;
+	public static void bubbleSort(int[] A, int n) {
 		comparisons = 0;
-		for (int index = 0; index < a.length - 1; index++)  {
-			int indexOfNextSmallest = getIndexOfSmallest(a, index, n - 1);
-			swap(a, index, indexOfNextSmallest);
-			// Maintaining Invariant: a[0] <= a[1] <= . . . <= a[index] <= all other a[i]
-		} // end for
-	} // end selectionSort
-
-	/** Finds the index of the smallest value in a portion of an array.
-    @param a      an array of integers
-    @param first  an index >= 0 and < a.length that is the index of 
-                  the first array entry to consider
-    @param last   an integer >= first and < a.length that is the index 
-                  of the last array entry to consider
-    @return the index of the smallest value among a[first], a[first + 1], . . . , a[last] */
-	private static int getIndexOfSmallest(int[] a, int first, int last) {
-		int min = a[first];
-		int indexOfMin = first;
-		for (int index = first + 1; index <= last; index++) {
-			comparisons++;
-			if (a[index]<min) {
-				min = a[index];
-				indexOfMin = index;
-			} // end if
-			// Assertion: min is the smallest of a[first] through a[index].
-		} // end for
-
-		return indexOfMin;
-	} // end getIndexOfSmallest
-
-	 public static void insertionSort(int [] a) {
-		 int n = a.length;
-		 comparisons = 0;
-		 insertionSort(a, 0, n - 1);
-	 } // end insertionSort
-
-	 public static void insertionSort(int[] a, int first, int last) {
-		 int unsortedIndex;  // each element of a becomes the first of unsorted in turn
+		for (int i=0; i<n-1; i++){
+			boolean swapped = false; 
+			for (int j=0; j<(n-1)-i; j++) {			 
+				comparisons++;
+				if (A[j] > A[j+1]) {
+					swap (A, j, j+1); 
+					swapped = true;
+				}
+			}
+			if (!swapped) return; 
+		}
+	} 
 	
-		 for (unsortedIndex = first + 1; unsortedIndex <= last; unsortedIndex++) {   
-			 // Assertion: a[first] <= a[first + 1] <= ... <= a[unsorted - 1]
-	
-			 int unsorted = a[unsortedIndex];
+	public static void selectionSort(int[] A, int n) {
+		comparisons = 0;
+		for (int i=0; i< n-1; i++) {
+			int minIndex = i;
 		
-			 insertInOrder(unsorted, a, first, unsortedIndex - 1);
-		 } // end for
-	 } // end insertionSort
+			// finds the smallest value in the portion A[i:n-1]
+			for (int j=i+1; j<n; j++) {
+				comparisons ++;
+				if (A[minIndex] > A[j])
+					minIndex = j;
+			}
+			swap (A, minIndex, i);
+		}
 
-	 private static void insertInOrder(int element, int[] a, int begin, int end) {
-		 int index;	
-		 // searching for the correct placve for element in the sorted part
-		 //shifting values to the right
-		 for (index = end; (index >= begin) && (element < a[index]); index--)	{
-			 comparisons ++;
-			 a[index + 1] = a[index]; // make room
-		 } // end for	
-		 
-		 a[index + 1] = element;  // insert
-	 } // end insertInOrder
+	} 	
+
+	public static void insertionSort(int [] A, int n) {
+		 comparisons = 0;
+		 for (int unsortedIndex = 1; unsortedIndex < n; unsortedIndex++) {
+			 // take next unsorted number and insert it 
+			 // into its proper position in the sorted part A[0:unsortedIndex-1]
+			 int element = A[unsortedIndex];
+			 int index = unsortedIndex-1;			 
+			 
+			 while (index >= 0) {
+				comparisons++;
+				if (element < A[index]) {			 
+					A[index+1]=A[index];  // shift to the right 
+					index--;
+				}
+				else {					
+					break;
+				}					 
+			 }	
+			 A[index+1] = element;  // insert
+		 }
+	 }
 	 
 	/** Swaps the array entries a[i] and a[j].
     @param a  an array of integers
@@ -84,71 +74,76 @@ public class SimpleSorting {
 		a[j] = temp; 
 	} // end swap
 
-	public static void shellSort(int[] a) {
-		int n = a.length;
-		int first = 0;
-		int last = n-1;
+	public static void shellSort(int[] A, int n) {	
+		int end = n-1;
 		
 		comparisons = 0;
 		
 		int gap = n / 2;	// initial gap is n/2
-		if (gap % 2 == 0)
+		if (gap % 2 == 0)	// or the closest odd number
 			gap ++;
 	
-		// Continue until the gap is zero
+		// Continue sorting sub arrays until the gap is zero
 		while (gap > 0) {
 			System.out.println("Current gap = " + gap);
 			// for each position inside the gap
 			//do insertion sort on the corresponding subarray 
-			for (int begin = first; begin < first + gap; begin++){
-				insertionSortSubarray(a, begin, last, gap);
+			for (int start = 0; start < gap; start++){
+				insertionSortSubarray(A, start, end, gap);
 			}
 
 		    gap = gap / 2;	// reduce gap
 		    if (gap > 0 && gap % 2 == 0)
 		    	gap ++;
-		} // end for
-	} // end shellSort
+		} 
+	} 
 	
-	private static void insertionSortSubarray (int [] a, int start, int end, int gap) {
+	private static void insertionSortSubarray (int [] A, int start, int end, int gap) {
 		int unsortedIndex, index;
 		// go through all elements in the subarray starting from the second
-		for (unsortedIndex = start + gap; unsortedIndex <= end; 
-				unsortedIndex=unsortedIndex+gap){
-			int unsorted = a[unsortedIndex];
-			index = unsortedIndex - gap;
-			while ((index >= start) && 
-					unsorted < a[index]){
-				comparisons ++;
-				a[index + gap] = a[index]; 
-				index = index - gap;
-			} // end while
-
-			a[index + gap] = unsorted; 
-		} // end for
+		for (unsortedIndex = start + gap; unsortedIndex <= end; unsortedIndex+=gap){
+			int element = A[unsortedIndex];
+			index = unsortedIndex - gap; // one before element
+			while ((index >= start)) {
+				comparisons ++;			
+				if (element < A[index]){
+					A[index + gap] = A[index]; 
+					index = index - gap;
+				}
+				else {					
+					break;
+				}
+			} 
+			A[index+gap] = element; 
+		} 
 	}
 	
 	public static void main (String [] args) {
 		int n = 10;
 		int [] a = DataGenerator.getRandIntArray(n);
-		System.out.println("Input array of size  " + n + ": "+ DataGenerator.arrToString(a));
+		if (n<=20) System.out.println("Input array of size  " + n + ": "+ DataGenerator.arrToString(a));
 		
-		selectionSort(a);
-		System.out.println("Sorted with selection sort with total " + comparisons +" comparisons.");
-		System.out.println("Output array: " + DataGenerator.arrToString(a));
-		
-		a = DataGenerator.getRandIntArray(n);
-		System.out.println("\nInput array of size  " + n + ": "+ DataGenerator.arrToString(a));
-		insertionSort(a);
-		System.out.println("Sorted with insertion sort with total " + comparisons +" comparisons.");
-		System.out.println("Output array: " + DataGenerator.arrToString(a));
+		selectionSort(a, n);
+		System.out.println("Sorted with SELECTION sort with total " + comparisons +" comparisons.");
+		if (n<=20)System.out.println("Output array: " + DataGenerator.arrToString(a));
 		
 		a = DataGenerator.getRandIntArray(n);
-		System.out.println("\nInput array of size  " + n + ": "+ DataGenerator.arrToString(a));
-		shellSort(a);
-		System.out.println("Sorted with shell sort with total " + comparisons +" comparisons.");
-		System.out.println("Output array: " + DataGenerator.arrToString(a));
+		if (n<=20)System.out.println("\nInput array of size  " + n + ": "+ DataGenerator.arrToString(a));
+		bubbleSort(a, n);
+		System.out.println("Sorted with BUBBLE sort with total " + comparisons +" comparisons.");
+		if (n<=20)System.out.println("Output array: " + DataGenerator.arrToString(a));
 		
+		a = DataGenerator.getRandIntArray(n);
+		if (n<=20)System.out.println("\nInput array of size  " + n + ": "+ DataGenerator.arrToString(a));
+		insertionSort(a, n);
+		System.out.println("Sorted with INSERTION sort with total " + comparisons +" comparisons.");
+		if (n<=20)System.out.println("Output array: " + DataGenerator.arrToString(a));
+		
+		a = DataGenerator.getRandIntArray(n);
+		if (n<=20)System.out.println("\nInput array of size  " + n + ": "+ DataGenerator.arrToString(a));
+		shellSort(a, n);
+		System.out.println("Sorted with SHELL sort with total " + comparisons +" comparisons.");
+		if (n<=20)System.out.println("Output array: " + DataGenerator.arrToString(a));		
 	}
 
 }
